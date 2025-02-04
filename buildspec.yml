@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: 11
+    commands:
+      - echo "Installing dependencies"
+      - apt install dos2unix  -y
+      - chmod +x install.sh
+      - dos2unix ./install.sh
+      - mvn install
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR"
+      - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$NUMBER.dkr.ecr.us-east-1.amazonaws.com"
+
+  build:
+    commands:
+      - echo "Building Docker image"
+      - docker build -t "$NUMBER.dkr.ecr.us-east-1.amazonaws.com/java:latest" .
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to Amazon ECR"
+      - docker push "$NUMBER.dkr.ecr.us-east-1.amazonaws.com/java:latest"
+      - echo "Deploying to EKS"
+      - aws eks update-kubeconfig --region us-east-1 --name mycluster
+      - kubectl apply -f deployment.yaml
+      - kubectl apply -f service.yaml
+      - kubectl get svc
