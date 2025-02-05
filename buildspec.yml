@@ -6,14 +6,14 @@ phases:
       java: 11
     commands:
       - echo "Installing dependencies"
-      - apt install dos2unix  -y
+      - apt install dos2unix -y
       - chmod +x install.sh
       - dos2unix ./install.sh
       - mvn install
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR"
-      - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$NUMBER.dkr.ecr.us-east-1.amazonaws.com"
 
   build:
@@ -25,8 +25,19 @@ phases:
     commands:
       - echo "Pushing Docker image to Amazon ECR"
       - docker push "$NUMBER.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest"
+      - echo "Checking IAM identity"
+      - aws sts get-caller-identity
+      - echo "Updating kubeconfig"
+      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_CODEBUILD_ROLE
+      - echo "Verifying Kubernetes access"
+      - kubectl version --client
+      - kubectl cluster-info
+      - kubectl get nodes
+      - kubectl get pods
+      - echo "Validating deployment YAML"
+      - kubectl apply --dry-run=client -f deployment.yaml
+      - kubectl apply --dry-run=client -f service.yaml
       - echo "Deploying to EKS"
-      - aws eks update-kubeconfig --region us-east-1 --name mycluster
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
       - kubectl get svc
