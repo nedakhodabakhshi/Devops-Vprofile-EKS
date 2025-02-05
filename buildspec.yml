@@ -21,22 +21,18 @@ phases:
       - echo "Building Docker image"
       - docker build -t "$NUMBER.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest" .
 
+ 
   post_build:
     commands:
-      - echo "Pushing Docker image to Amazon ECR"
-      - docker push "$NUMBER.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest"
       - echo "Checking IAM identity"
       - aws sts get-caller-identity
-      - echo "Updating kubeconfig"
-      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_CODEBUILD_ROLE
+      - echo "Assuming EKS role"
+      - export AWS_ROLE_ARN="arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_CODEBUILD_ROLE"
+      - export AWS_WEB_IDENTITY_TOKEN_FILE=$(curl -sS 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI | jq -r '.TokenFilePath')
+      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn $AWS_ROLE_ARN
       - echo "Verifying Kubernetes access"
-      - kubectl version --client
       - kubectl cluster-info
       - kubectl get nodes
-      - kubectl get pods
-      - echo "Validating deployment YAML"
-      - kubectl apply --dry-run=client -f deployment.yaml
-      - kubectl apply --dry-run=client -f service.yaml
       - echo "Deploying to EKS"
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
