@@ -7,12 +7,11 @@ phases:
     commands:
       - echo "Installing dependencies"
       - apt install dos2unix -y
-      - chmod +x install.sh
-      - dos2unix ./install.sh
-      - mvn install
 
   pre_build:
     commands:
+      - echo "Building project with Maven"
+      - mvn clean install -DskipTests
       - echo "Logging in to Amazon ECR"
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 557690612191.dkr.ecr.us-east-1.amazonaws.com
 
@@ -24,19 +23,16 @@ phases:
       - echo "Building Docker image"
       - docker build -t 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest .
 
- 
   post_build:
     commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
       - echo "Checking IAM identity"
       - aws sts get-caller-identity
-      - echo "Assuming EKS role"
-      - export AWS_ROLE_ARN=arn:aws:iam::557690612191:role/codebuild-MyBuild-001-service-role
-      #- export AWS_WEB_IDENTITY_TOKEN_FILE=$(curl -sS 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI | jq -r '.TokenFilePath')
-      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn arn:aws:iam::557690612191:role/codebuild-MyBuild-001-service-role
-      - echo "Verifying Kubernetes access"
+      - echo "Updating kubeconfig for EKS..."
+      - aws eks update-kubeconfig --region us-east-1 --name mycluster
       - kubectl cluster-info
-      - kubectl get nodes
-      - echo "Deploying to EKS"
+      - echo "Deploying to Kubernetes"
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
       - kubectl get svc
