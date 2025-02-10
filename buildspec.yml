@@ -25,7 +25,6 @@ phases:
     commands:
       - echo "Verifying IAM Role..."
       - aws iam get-role --role-name codebuild-MyBuild-001-service-role || echo "Role does not exist!"
-      - export AWS_ROLE_ARN="arn:aws:iam::557690612191:role/codebuild-MyBuild-001-service-role"
       - echo "Pushing Docker image to ECR..."
       - docker push 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
       - echo "Updating kubeconfig for EKS..."
@@ -35,4 +34,3 @@ phases:
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
       - kubectl get svc
-
