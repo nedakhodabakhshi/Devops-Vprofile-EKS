@@ -15,6 +15,8 @@ phases:
 
   build:
     commands:
+      - echo "Checking if Dockerfile exists..."
+      - ls -lah Dockerfile
       - echo "Checking if .war file exists..."
       - ls -lah target/
       - if [ ! -f target/vprofile-v2.war ]; then echo "ERROR: vprofile-v2.war NOT FOUND!"; exit 1; fi
@@ -23,8 +25,6 @@ phases:
 
   post_build:
     commands:
-      - echo "Verifying IAM Role..."
-      - aws iam get-role --role-name codebuild-MyBuild-001-service-role || echo "Role does not exist!"
       - echo "Pushing Docker image to ECR..."
       - docker push 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
       - echo "Updating kubeconfig for EKS..."
@@ -34,3 +34,4 @@ phases:
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
       - kubectl get svc
+
