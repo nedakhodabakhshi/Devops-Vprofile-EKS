@@ -29,7 +29,7 @@ phases:
       - echo "Assuming EKS role"
       - export AWS_ROLE_ARN="arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_CODEBUILD_ROLE"
       - export AWS_WEB_IDENTITY_TOKEN_FILE=$(curl -sS 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI | jq -r '.TokenFilePath')
-      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn arn:aws:iam::557690612191:role/AssumeCodeBuildRol-full
+      - aws eks update-kubeconfig --region us-east-1 --name mycluster --role-arn arn:aws:iam::557690612191:role/codebuild-MyBuild-001-service-role
       - echo "Verifying Kubernetes access"
       - kubectl cluster-info
       - kubectl get nodes
