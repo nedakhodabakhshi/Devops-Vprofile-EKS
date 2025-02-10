@@ -2,8 +2,6 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      java: 11
     commands:
       - echo "Installing dependencies"
       - apt install dos2unix -y
@@ -25,10 +23,11 @@ phases:
 
   post_build:
     commands:
+      - echo "Verifying IAM Role..."
+      - aws iam get-role --role-name codebuild-MyBuild-001-service-role || echo "Role does not exist!"
+      - export AWS_ROLE_ARN="arn:aws:iam::557690612191:role/codebuild-MyBuild-001-service-role"
       - echo "Pushing Docker image to ECR..."
       - docker push 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
-      - echo "Checking IAM identity"
-      - aws sts get-caller-identity
       - echo "Updating kubeconfig for EKS..."
       - aws eks update-kubeconfig --region us-east-1 --name mycluster
       - kubectl cluster-info
@@ -36,3 +35,4 @@ phases:
       - kubectl apply -f deployment.yaml
       - kubectl apply -f service.yaml
       - kubectl get svc
+
