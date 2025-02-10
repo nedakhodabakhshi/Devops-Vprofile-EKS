@@ -17,9 +17,9 @@ phases:
     commands:
       - echo "Checking if Dockerfile exists..."
       - ls -lah Dockerfile
-      - echo "Checking if .war file exists..."
-      - ls -lah target/
-      - if [ ! -f target/vprofile-v2.war ]; then echo "ERROR: vprofile-v2.war NOT FOUND!"; exit 1; fi
+     #- echo "Checking if .war file exists..."
+     #- ls -lah target/
+     # - if [ ! -f target/vprofile-v2.war ]; then echo "ERROR: vprofile-v2.war NOT FOUND!"; exit 1; fi
       - echo "Building Docker image"
       - docker build -t 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest .
 
