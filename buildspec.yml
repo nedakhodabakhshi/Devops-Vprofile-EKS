@@ -9,7 +9,7 @@ phases:
       - apt install dos2unix  -y
       #- chmod +x install.sh
       #- dos2unix ./install.sh
-       - mvn install
+      - mvn install
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR"
