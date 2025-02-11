@@ -16,4 +16,4 @@ spec:
       - name: my-container
         image: 557690612191.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
