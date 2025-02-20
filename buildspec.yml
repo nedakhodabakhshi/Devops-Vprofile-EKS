@@ -7,8 +7,6 @@ phases:
     commands:
       - echo "Installing dependencies"
       - apt install dos2unix  -y
-      #- chmod +x install.sh
-      #- dos2unix ./install.sh
       - mvn install
   pre_build:
     commands:
