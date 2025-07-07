@@ -11,18 +11,18 @@ phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR"
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin NUMBER.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${NUMBER}.dkr.ecr.us-east-1.amazonaws.com
 
 
   build:
     commands:
       - echo "Building Docker image"
-      - docker build -t NUMBER.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest .
+      - docker build -t ${NUMBER}.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest .
 
   post_build:
     commands:
       - echo "Pushing Docker image to Amazon ECR"
-      - docker push NUMBER.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
+      - docker push ${NUMBER}.dkr.ecr.us-east-1.amazonaws.com/myrepo:latest
       - echo "Deploying to EKS"
       - aws eks update-kubeconfig --region us-east-1 --name mycluster
       - kubectl apply -f deployment.yaml
